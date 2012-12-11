@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import pwd
 import grp
+from multiprocessing import Process
 from gevent import pywsgi
-from daemon import Daemon
 import settings
 
-class Worker(Daemon):
+class Worker(object):
     def __init__(self, hostname, port, app):
         """
         hostname (str): The server hostname
@@ -18,26 +19,27 @@ class Worker(Daemon):
         self.hostname = hostname
         self.port = port
         self.app = app
-        self.pidfile = os.path.join(settings.pidpath, ''.join(['napoli_', str(port), '.pid']))
-        if settings.stdout['stdout'] == 'tty':
-            self.stdout = os.popen('tty').read().strip()
-        else:
-            self.stdout = '/dev/null'
+        self.proc = Process(target=self, name="{0}{1}".format(hostname, port))
+        self.proc.daemon = True
 
-        if settings.stderr['stdout'] == 'tty':
-            self.stderr = os.popen('tty').read().strip()
-        else:
-            self.stderr = '/dev/null'
+    def pid(self):
+        return self.proc.pid
 
-        super(Worker, self).__init__(pidfile=self.pidfile, stdout=self.stdout, stderr=self.stderr)
+    def start(self):
+        self.proc.start()
 
+    def stop(self):
+        self.proc.terminate()
 
-    def run(self):
-        uid = pwd.getpwnam(settings.process['user']).pw_uid
-        gid = grp.getgrnam(settings.process['group']).gr_gid
-        os.setgid(gid)
-        os.setuid(uid)
+    def __call__(self):
         server = pywsgi.WSGIServer((self.hostname, self.port), self.app)
-        server.serve_forever()
+        try:
+            server.serve_forever()
+        except Exception as e:
+            print("Could not start server: {0}".format(e))
+
+
+
+
 
 

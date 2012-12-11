@@ -1,7 +1,7 @@
 # server details, port number will increase depending on numer of processes
 server = {
     'hostname': 'localhost',
-    'port': 9000
+    'port': 10000
 }
 
 # process details
@@ -11,12 +11,12 @@ process = {
     'number': 'max',
     # process will run as
     'user': 'nobody',
-    'group': 'nogroup'
+    'group': 'nogroup',
+    # pidfile path
+    'pidpath': '/tmp/',
+    # pidfile filename
+    'pidfile': 'napoli.pid'
 }
-
-# path of pidfile(s)
-# each process has its own pid file
-pidpath = '/tmp/'
 
 stdstr = {
     # possible values 'tty' or 'null'
