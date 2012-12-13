@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
-from gevent import monkey; monkey.patch_all()
 from multiprocessing import cpu_count
-from lib.worker import Worker
-from lib.server import Server
+from subprocess import Popen
 import settings
-
-
-def application(env, start_response):
-    start_response('200 OK', [('Content-Type','text/html')])
-    return "Hello World"
 
 
 if __name__ == "__main__":
@@ -24,25 +18,22 @@ if __name__ == "__main__":
     else:
         proc_num = int(settings.process['number'])
 
-    process = []
     port = int(settings.server['port'])
     hostname = settings.server['hostname']
-
-    for i in range(port, (port + proc_num)):
-        worker = Worker(hostname, i, application)
-        process.append(worker)
-
-    daemon = Server(process)
+    cwd = os.path.dirname(os.path.realpath(__file__))
 
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
-            daemon.start()
+            for p in range(port, (port + proc_num)):
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'start')], shell=True)
         elif 'stop' == sys.argv[1]:
-            daemon.stop()
+            for p in range(port, (port + proc_num)):
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'stop')], shell=True)
         elif 'restart' == sys.argv[1]:
-            daemon.restart()
+            for p in range(port, (port + proc_num)):
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'restart')], shell=True)
         else:
-            print "Unknown command"
+            print("{0} Unknown command".format(sys.argv[1]))
             sys.exit(2)
         sys.exit(0)
     else:

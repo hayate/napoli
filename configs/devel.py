@@ -14,8 +14,6 @@ process = {
     'group': 'nogroup',
     # pidfile path
     'pidpath': '/tmp/',
-    # pidfile filename
-    'pidfile': 'napoli.pid'
 }
 
 stdstr = {
