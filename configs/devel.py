@@ -16,6 +16,10 @@ process = {
     'pidpath': '/tmp/',
 }
 
+# path to application directory
+import os
+application = os.path.join(os.path.realpath(__file__), 'app')
+
 stdstr = {
     # possible values 'tty' or 'null'
     # 'tty' = send output to terminal
@@ -23,3 +27,13 @@ stdstr = {
     'stdout': 'tty',
     'stderr': 'tty'
 }
+
+# default route
+default = {
+    'module': 'home',
+    'controller': 'index',
+    'action': 'index',
+}
+
+# installed modules
+modules = ('home')
