@@ -33,12 +33,15 @@ class Worker(Daemon):
 	super(Worker, self).__init__(pidfile, stdout=stdout, stderr=stderr)
 
     def daemonize(self):
+	haspid = os.path.isfile(self.pidfile)
 	super(Worker, self).daemonize()
 	uid = pwd.getpwnam(settings.process['user']).pw_uid
 	gid = grp.getgrnam(settings.process['group']).gr_gid
 	os.chown(self.pidfile, uid, gid)
 	os.setgid(gid)
 	os.setuid(uid)
+	if not haspid and os.path.isfile(self.pidfile):
+	    print("Starting daemon with pid: {0}".format(self.pidfile))
 
     def run(self):
         try:
@@ -46,6 +49,12 @@ class Worker(Daemon):
             server.serve_forever()
         except Exception as e:
             print("Could not start server: {0}".format(e))
+
+    def stop(self):
+	haspid = os.path.isfile(self.pidfile)
+	super(Worker, self).stop()
+	if haspid and not os.path.isfile(self.pidfile):
+	    print("Stopped daemon with pid: {0}".format(self.pidfile))
 
 
 if __name__ == '__main__':
