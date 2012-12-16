@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from napoli import Napoli
+import napoli
+
+print(dir(napoli))
 
 def index():
     return __file__

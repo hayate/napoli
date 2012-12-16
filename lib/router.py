@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import re
-import inspect
 import settings
-from configs.routes import routes
 
 
 class Route(object):
@@ -23,7 +20,7 @@ class Route(object):
 
 
 class Routes(object):
-    def __init__(self):
+    def __init__(self, routes):
         self._routes = routes
 
     def add_route(self, route, target=None):
@@ -55,11 +52,11 @@ class Router(object):
         """
         routes: (Routes)
         """
-        self._packages = settings.packages
-        self._default_package = settings.default['module']
+        self._modules = settings.modules
+        self._default_module = settings.default['module']
         self._default_controller = settings.default['controller']
         self._default_action = settings.default['action']
-        self._package = None
+        self._module = None
         self._controller = None
         self._action = None
         self._basepath = os.environ['APPPATH']
@@ -74,45 +71,45 @@ class Router(object):
             if len(seg): segs.append(seg)
 
         if not len(segs):
-            self._package = self._default_package
+            self._module = self._default_module
             self._controller = self._default_controller
             self._action = self._default_action
         else:
-            if self._ispackage(segs[0]):
-                self._package = segs[0]
+            if self._ismodule(segs[0]):
+                self._module = segs[0]
                 segs.pop(0)
                 if not len(segs):
                     self._controller = self._default_controller
                     self._action = self._default_action
                 else:
-                    if self._ismodule(self._package, segs[0]):
+                    if self._ismodule(self._module, segs[0]):
                         self._controller = segs[0]
                         segs.pop(0)
                     else:
                         self._controller = self._default_controller
-                    if len(segs) and self._isaction(self._package, self._controller, segs[0]):
+                    if len(segs) and self._isaction(self._module, self._controller, segs[0]):
                         self._action = segs[0]
                         segs.pop(0)
                     else:
                         self._action = self._default_action
                     if len(segs): self._args = segs
-            elif self._ispackage(self._default_package):
-                self._package = self._default_package
-                if self._ismodule(self._package, segs[0]):
+            elif self._ismodule(self._default_module):
+                self._module = self._default_module
+                if self._ismodule(self._module, segs[0]):
                     self._controller = segs[0]
                     segs.pop(0)
                 else:
                     self._controller = self._default_controller
-                if len(segs) and self._isaction(self._package, self._controller, segs[0]):
+                if len(segs) and self._isaction(self._module, self._controller, segs[0]):
                     self._action = segs[0]
                     segs.pop(0)
                 else:
                     self._action = self._default_action
                 if len(segs): self._args = segs
             else:
-                self._package = self._default_package
+                self._module = self._default_module
                 self._controller = self._default_controller
-                if self._isaction(self._package, self._controller, segs[0]):
+                if self._isaction(self._module, self._controller, segs[0]):
                     self._action = segs[0]
                     segs.pop(0)
                 else:
@@ -120,8 +117,8 @@ class Router(object):
                 if len(segs): self._args = segs
 
 
-    def package(self):
-        return self._package
+    def module(self):
+        return self._module
 
     def controller(self):
         return self._controller
@@ -132,35 +129,24 @@ class Router(object):
     def args(self):
         return self._args
 
-    def _ispackage(self, package):
-        if package == 'common':
-            return os.path.isdir(os.path.join(self._basepath, package, 'controllers'))
-        path = os.path.join(self._basepath, 'packages', package, 'controllers')
-        return package in self._packages and os.path.isdir(path)
+    def _ismodule(self, module):
+        path = os.path.join(self._basepath, 'modules', module, 'controllers')
+        return module in self._modules and os.path.isdir(path)
 
-    def _ismodule(self, package, name):
-        if package == 'common':
-            return os.path.isfile(os.path.join(self._basepath, package, 'controllers', '.'.join([name, 'py'])))
-        filepath = os.path.join(self._basepath, 'packages', package, 'controllers', '.'.join([name, 'py']))
+    def _iscontroller(self, module, name):
+        filepath = os.path.join(self._basepath, 'modules', module, 'controllers', '.'.join([name, 'py']))
         return os.path.isfile(filepath)
 
-    def _isaction(self, package_name, module_name, action_name):
+    def _isaction(self, module_name, controller_name, action_name):
         if action_name.startswith('_'): return False
 
-        if package_name == 'common':
-            module = '.'.join(['application', package_name, 'controllers', module_name])
-        else:
-            module = '.'.join(['application','packages',package_name,'controllers',module_name])
+        app = os.path.split(os.environ['APPPATH'].rstrip(os.path.sep))[1]
+        module = '.'.join([app, 'modules', module_name, 'controllers', controller_name])
         try:
-            class_name = ''.join([s.lower().capitalize() for s in module_name.split('_')])
-            klass = __import__(module, fromlist=[class_name])
-            for name, obj in inspect.getmembers(klass, inspect.isclass):
-                if name == class_name:
-                    return action_name in dir(obj)
-
-            return False
+            controller = __import__(module)
+            return action_name in dir(controller)
         except ImportError:
             return False
 
     def __str__(self):
-        return 'package: %s - controller: %s - action: %s' % (self._package, self._controller, self._action)
+        return 'module: %s - controller: %s - action: %s' % (self._module, self._controller, self._action)
