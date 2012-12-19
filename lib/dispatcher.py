@@ -3,8 +3,6 @@
 
 import os
 import sys
-import importlib
-import inspect
 from webob import Response
 
 
@@ -42,7 +40,7 @@ class Dispatcher(object):
         try:
             module = None
             action = self._router.action()
-            controller = self._router.controller()
+            #controller = self._router.controller()
 
             if name not in sys.modules:
                 module = __import__("app.modules.home.controllers.index",

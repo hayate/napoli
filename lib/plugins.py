@@ -3,6 +3,7 @@
 
 import os
 import functools
+import sys
 
 
 class Plugin(object):
@@ -11,7 +12,7 @@ class Plugin(object):
         self.active = False
 
     def run(self):
-        except NotImplementedError
+        raise NotImplementedError
 
     def __call__(self):
         self.run()
