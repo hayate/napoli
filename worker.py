@@ -5,11 +5,13 @@ import os
 import pwd
 import grp
 import sys
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
 from gevent import pywsgi
 from lib.daemon import Daemon
 from napoli import Napoli
 import settings
+
+monkey.patch_all()
 
 
 class Worker(Daemon):
@@ -29,7 +31,8 @@ class Worker(Daemon):
         if settings.stdstr['stderr'] == 'tty':
             stderr = os.popen('tty').read().strip()
 
-        pidfile = os.path.join(settings.process['pidpath'], "napoli_{0}_{1}.pid".format(hostname, port))
+        pidfile = os.path.join(settings.process['pidpath'],
+                               "napoli_{0}_{1}.pid".format(hostname, port))
         super(Worker, self).__init__(pidfile, stdout=stdout, stderr=stderr)
 
     def daemonize(self):
@@ -75,4 +78,5 @@ if __name__ == '__main__':
         else:
             print("{0} is an invalid command.".format(sys.argv[3]))
     else:
-        print("Usage: sudo {0} hostname port [start | stop | restart]".format(sys.argv[0]))
+        print("Usage: sudo {0} hostname port [start | stop | restart]".
+              format(sys.argv[0]))

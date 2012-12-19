@@ -6,7 +6,7 @@ import functools
 
 
 class Plugin(object):
-    def __init__(self, name = None):
+    def __init__(self, name=None):
         self.name = name
         self.active = False
 
@@ -18,6 +18,7 @@ class Plugin(object):
 
     def setup(self, *a, **kw):
         pass
+
 
 class Plugins(object):
     # static
@@ -44,7 +45,8 @@ class Plugins(object):
             self.__plugins[name].active = False
 
     def install(self, name, *a, **kw):
-        if name in self.__plugins: return
+        if name in self.__plugins:
+            return
         plugin = self.load(name)
         if plugin:
             plugin.active = True
@@ -77,8 +79,6 @@ class Plugins(object):
             return obj
         raise TypeError('%s is not a sub-class of %s' % (klass, Plugin))
 
-
-
 '''
 import functools
 
@@ -102,6 +102,7 @@ def suppress_errors(log_func=None):
 
 return decorator
 '''
+
 
 def apply_plugin(*names):
     """ The plugin decorator

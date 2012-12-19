@@ -6,8 +6,10 @@ server = {
 
 # process details
 process = {
-    # number of required process or "max" which means as many process as available cores
-    # if the number of process is creater then available cores then "max" is assumed
+    # number of required process or "max" which means as many process as
+    # available cores.
+    # if the number of process is creater then available cores then "max"
+    # is assumed.
     'number': 1,
     # process will run as
     'user': 'andrea',
@@ -18,7 +20,8 @@ process = {
 
 # path to application directory
 import os
-application = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'app')
+application = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+                           'app')
 
 stdstr = {
     # possible values 'tty' or 'null'

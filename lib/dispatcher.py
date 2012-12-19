@@ -17,7 +17,7 @@ class Dispatcher(object):
     def dispatch(self):
         action = self.get_action()
 
-        res = action(*self._router.args())
+        res = action(self._request)
         if not res:
             self._res.status_int = 404
             return self._res
@@ -36,7 +36,8 @@ class Dispatcher(object):
 
     def get_action(self):
         app = os.path.split(os.environ['APPPATH'].rstrip(os.path.sep))[1]
-        name = '.'.join([app, 'modules', self._router.module(), 'controllers', self._router.controller()])
+        name = '.'.join([app, 'modules', self._router.module(),
+                        'controllers', self._router.controller()])
 
         try:
             module = None
@@ -44,7 +45,8 @@ class Dispatcher(object):
             controller = self._router.controller()
 
             if name not in sys.modules:
-                module = __import__("app.modules.home.controllers.index", fromlist=["index"])
+                module = __import__("app.modules.home.controllers.index",
+                                    fromlist=["index"])
             else:
                 module = sys.modules[name]
             return getattr(module, action)

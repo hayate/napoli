@@ -17,7 +17,7 @@ class JsonPlugin(Plugin):
         self.allow_nan = True
         self.cls = JSONEncoder
         self.indent = None
-        self.separators =  (',', ':')
+        self.separators = (',', ':')
         self.encoding = 'UTF-8'
 
     def run(self, callback):
@@ -30,13 +30,13 @@ class JsonPlugin(Plugin):
                 res = Response(content_type='application/json')
                 # encode into json
                 res.json = json.dumps(obj, skipkeys=self.skipkeys,
-                                 ensure_ascii=self.ensure_ascii,
-                                 check_circular=self.check_circular,
-                                 allow_nan=self.allow_nan,
-                                 cls=self.cls,
-                                 indent=self.indent,
-                                 separators=self.separators,
-                                 encoding=self.encoding)
+                                      ensure_ascii=self.ensure_ascii,
+                                      check_circular=self.check_circular,
+                                      allow_nan=self.allow_nan,
+                                      cls=self.cls,
+                                      indent=self.indent,
+                                      separators=self.separators,
+                                      encoding=self.encoding)
                 # return json response
                 return res
             except TypeError:
@@ -47,8 +47,9 @@ class JsonPlugin(Plugin):
 
         return wrapper
 
-    def setup(self, skipkeys=False, ensure_ascii=True, check_circular=True,allow_nan=True,
-              cls=JSONEncoder, indent=None, separators=(',', ':'), encoding='UTF-8'):
+    def setup(self, skipkeys=False, ensure_ascii=True, check_circular=True,
+              allow_nan=True, cls=JSONEncoder, indent=None,
+              separators=(',', ':'), encoding='UTF-8'):
         self.skipkeys = skipkeys
         self.ensure_ascii = ensure_ascii
         self.check_circular = check_circular

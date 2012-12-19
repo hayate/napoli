@@ -67,6 +67,7 @@ class Pep8Command(Command):
         retcode = call(('pep8 %s' % (cwd)).split(' '))
         sys.exit(retcode)
 
+
 class TestCommand(Command):
     user_options = []
 

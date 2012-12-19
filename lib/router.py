@@ -68,7 +68,8 @@ class Router(object):
         segs = []
         for seg in path.strip('/').split('/'):
             seg = seg.strip()
-            if len(seg): segs.append(seg)
+            if len(seg):
+                segs.append(seg)
 
         if not len(segs):
             self._module = self._default_module
@@ -87,12 +88,15 @@ class Router(object):
                         segs.pop(0)
                     else:
                         self._controller = self._default_controller
-                    if len(segs) and self._isaction(self._module, self._controller, segs[0]):
+                    if len(segs) and self._isaction(self._module,
+                                                    self._controller,
+                                                    segs[0]):
                         self._action = segs[0]
                         segs.pop(0)
                     else:
                         self._action = self._default_action
-                    if len(segs): self._args = segs
+                    if len(segs):
+                        self._args = segs
             elif self._ismodule(self._default_module):
                 self._module = self._default_module
                 if self._ismodule(self._module, segs[0]):
@@ -100,12 +104,15 @@ class Router(object):
                     segs.pop(0)
                 else:
                     self._controller = self._default_controller
-                if len(segs) and self._isaction(self._module, self._controller, segs[0]):
+                if len(segs) and self._isaction(self._module,
+                                                self._controller,
+                                                segs[0]):
                     self._action = segs[0]
                     segs.pop(0)
                 else:
                     self._action = self._default_action
-                if len(segs): self._args = segs
+                if len(segs):
+                    self._args = segs
             else:
                 self._module = self._default_module
                 self._controller = self._default_controller
@@ -114,8 +121,8 @@ class Router(object):
                     segs.pop(0)
                 else:
                     self._action = self._default_action
-                if len(segs): self._args = segs
-
+                if len(segs):
+                    self._args = segs
 
     def module(self):
         return self._module
@@ -130,18 +137,22 @@ class Router(object):
         return self._args
 
     def _ismodule(self, module):
-        path = os.path.join(self._basepath, 'modules', module, 'controllers')
+        path = os.path.join(self._basepath, 'modules', module,
+                            'controllers')
         return module in self._modules and os.path.isdir(path)
 
     def _iscontroller(self, module, name):
-        filepath = os.path.join(self._basepath, 'modules', module, 'controllers', '.'.join([name, 'py']))
+        filepath = os.path.join(self._basepath, 'modules', module,
+                                'controllers', '.'.join([name, 'py']))
         return os.path.isfile(filepath)
 
     def _isaction(self, module_name, controller_name, action_name):
-        if action_name.startswith('_'): return False
+        if action_name.startswith('_'):
+            return False
 
         app = os.path.split(os.environ['APPPATH'].rstrip(os.path.sep))[1]
-        module = '.'.join([app, 'modules', module_name, 'controllers', controller_name])
+        module = '.'.join([app, 'modules', module_name, 'controllers',
+                          controller_name])
         try:
             controller = __import__(module)
             return action_name in dir(controller)
@@ -149,4 +160,5 @@ class Router(object):
             return False
 
     def __str__(self):
-        return 'module: %s - controller: %s - action: %s' % (self._module, self._controller, self._action)
+        return 'module: %s - controller: %s - action: %s' % \
+            (self._module, self._controller, self._action)

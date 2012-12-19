@@ -5,5 +5,7 @@ import napoli
 
 print(dir(napoli))
 
-def index():
+
+def index(request):
+    print request.GET
     return __file__
