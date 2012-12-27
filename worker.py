@@ -6,12 +6,13 @@ import pwd
 import grp
 import sys
 from gevent import monkey
+monkey.patch_all()
 from gevent import pywsgi
 from lib.daemon import Daemon
 from napoli import Napoli
 import settings
 
-monkey.patch_all()
+
 
 
 class Worker(Daemon):
