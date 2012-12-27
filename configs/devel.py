@@ -18,7 +18,7 @@ process = {
 
 # path to application directory
 import os
-application = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'app')
+application = os.path.join(os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'app')
 
 stdstr = {
     # possible values 'tty' or 'null'
@@ -30,10 +30,10 @@ stdstr = {
 
 # default route
 default = {
-    'module': 'home',
+    'bundle': 'home',
     'controller': 'index',
     'action': 'index',
 }
 
 # installed modules
-modules = ('home')
+bundles = ('home')

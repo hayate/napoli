@@ -25,13 +25,13 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             for p in range(port, (port + proc_num)):
-                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'start')], shell=True)
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'start')], shell=True).wait()
         elif 'stop' == sys.argv[1]:
             for p in range(port, (port + proc_num)):
-                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'stop')], shell=True)
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'stop')], shell=True).wait()
         elif 'restart' == sys.argv[1]:
             for p in range(port, (port + proc_num)):
-                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'restart')], shell=True)
+                Popen(["python {0}/worker.py {1} {2} {3}".format(cwd, hostname, str(p), 'restart')], shell=True).wait()
         else:
             print("{0} Unknown command".format(sys.argv[1]))
             sys.exit(2)

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
 import re
+import sys
+import inspect
+from configs import routes
 import settings
 
 
@@ -20,8 +20,8 @@ class Route(object):
 
 
 class Routes(object):
-    def __init__(self, routes):
-        self._routes = routes
+    def __init__(self):
+        self._routes = routes.routes
 
     def add_route(self, route, target=None):
         if isinstance(route, Route):
@@ -52,14 +52,15 @@ class Router(object):
         """
         routes: (Routes)
         """
-        self._modules = settings.modules
-        self._default_module = settings.default['module']
+        self._bundles = settings.bundles
+        self._default_bundle = settings.default['bundle']
         self._default_controller = settings.default['controller']
         self._default_action = settings.default['action']
-        self._module = None
+        self._bundle = None
         self._controller = None
         self._action = None
         self._basepath = os.environ['APPPATH']
+        self._appdir = self._basepath.strip(os.path.sep).split(os.path.sep).pop()
         self._routes = routes
         self._args = []
 
@@ -71,45 +72,45 @@ class Router(object):
             if len(seg): segs.append(seg)
 
         if not len(segs):
-            self._module = self._default_module
+            self._bundle = self._default_bundle
             self._controller = self._default_controller
             self._action = self._default_action
         else:
-            if self._ismodule(segs[0]):
-                self._module = segs[0]
+            if self._isbundle(segs[0]):
+                self._bundle = segs[0]
                 segs.pop(0)
                 if not len(segs):
                     self._controller = self._default_controller
                     self._action = self._default_action
                 else:
-                    if self._ismodule(self._module, segs[0]):
+                    if self._iscontroller(self._bundle, segs[0]):
                         self._controller = segs[0]
                         segs.pop(0)
                     else:
                         self._controller = self._default_controller
-                    if len(segs) and self._isaction(self._module, self._controller, segs[0]):
+                    if len(segs) and self._isaction(self._bundle, self._controller, segs[0]):
                         self._action = segs[0]
                         segs.pop(0)
                     else:
                         self._action = self._default_action
                     if len(segs): self._args = segs
-            elif self._ismodule(self._default_module):
-                self._module = self._default_module
-                if self._ismodule(self._module, segs[0]):
+            elif self._isbundle(self._default_bundle):
+                self._bundle = self._default_bundle
+                if self._iscontroller(self._bundle, segs[0]):
                     self._controller = segs[0]
                     segs.pop(0)
                 else:
                     self._controller = self._default_controller
-                if len(segs) and self._isaction(self._module, self._controller, segs[0]):
+                if len(segs) and self._isaction(self._bundle, self._controller, segs[0]):
                     self._action = segs[0]
                     segs.pop(0)
                 else:
                     self._action = self._default_action
                 if len(segs): self._args = segs
             else:
-                self._module = self._default_module
+                self._bundle = self._default_bundle
                 self._controller = self._default_controller
-                if self._isaction(self._module, self._controller, segs[0]):
+                if self._isaction(self._bundle, self._controller, segs[0]):
                     self._action = segs[0]
                     segs.pop(0)
                 else:
@@ -117,8 +118,8 @@ class Router(object):
                 if len(segs): self._args = segs
 
 
-    def module(self):
-        return self._module
+    def bundle(self):
+        return self._bundle
 
     def controller(self):
         return self._controller
@@ -129,24 +130,28 @@ class Router(object):
     def args(self):
         return self._args
 
-    def _ismodule(self, module):
-        path = os.path.join(self._basepath, 'modules', module, 'controllers')
-        return module in self._modules and os.path.isdir(path)
+    def _isbundle(self, bundle):
+        path = os.path.join(self._basepath, 'bundles', bundle, 'controllers')
+        return bundle in self._bundles and os.path.isdir(path)
 
-    def _iscontroller(self, module, name):
-        filepath = os.path.join(self._basepath, 'modules', module, 'controllers', '.'.join([name, 'py']))
+    def _iscontroller(self, bundle, name):
+        filepath = os.path.join(self._basepath, 'bundles', bundle, 'controllers', '.'.join([name, 'py']))
         return os.path.isfile(filepath)
 
-    def _isaction(self, module_name, controller_name, action_name):
+    def _isaction(self, bundle_name, controller_name, action_name):
         if action_name.startswith('_'): return False
 
-        app = os.path.split(os.environ['APPPATH'].rstrip(os.path.sep))[1]
-        module = '.'.join([app, 'modules', module_name, 'controllers', controller_name])
+        controller = '.'.join([self._appdir,'bundles',bundle_name,'controllers',controller_name])
         try:
-            controller = __import__(module)
-            return action_name in dir(controller)
+            class_name = ''.join([s.lower().capitalize() for s in controller_name.split('_')])
+            klass = __import__(controller, fromlist=[class_name])
+            for name, obj in inspect.getmembers(klass, inspect.isclass):
+                if name == class_name:
+                    return action_name in dir(obj)
+
+            return False
         except ImportError:
             return False
 
     def __str__(self):
-        return 'module: %s - controller: %s - action: %s' % (self._module, self._controller, self._action)
+        return 'bundle: %s - controller: %s - action: %s' % (self._bundle, self._controller, self._action)

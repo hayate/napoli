@@ -19,7 +19,7 @@ class Napoli(Singleton):
             # do initialization here
             os.environ['APPPATH'] = settings.application
             sys.path.append(os.path.dirname(os.environ['APPPATH']))
-            self.routes = Routes(routes.routes)
+            self.routes = Routes()
 
     def wsgi(self, environ, start_response):
         """
