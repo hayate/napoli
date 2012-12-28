@@ -2,8 +2,8 @@ import os
 import re
 import sys
 import inspect
+from config import Config
 from configs import routes
-import settings
 
 
 class Route(object):
@@ -11,6 +11,7 @@ class Route(object):
         self._pattern = re.compile(pattern, re.IGNORECASE)
         self.target = target
         self.pattern = pattern
+        self.config = Config.get_instance()
 
     def match(self, path):
         match = self._pattern.match(path)
@@ -52,10 +53,11 @@ class Router(object):
         """
         routes: (Routes)
         """
-        self._bundles = settings.bundles
-        self._default_bundle = settings.default['bundle']
-        self._default_controller = settings.default['controller']
-        self._default_action = settings.default['action']
+        self.config = Config.get_instance()
+        self._bundles = self.config.bundles
+        self._default_bundle = self.config.default['bundle']
+        self._default_controller = self.config.default['controller']
+        self._default_action = self.config.default['action']
         self._bundle = None
         self._controller = None
         self._action = None

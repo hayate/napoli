@@ -8,8 +8,8 @@ from lib.singleton import Singleton
 from lib.dispatcher import Dispatcher
 from lib.router import Router
 from lib.router import Routes
+from lib.config import Config
 from configs import routes
-import settings
 
 
 class Napoli(Singleton):
@@ -17,7 +17,8 @@ class Napoli(Singleton):
         super(Napoli, self).__init__()
         if getattr(self, '__init', False):
             # do initialization here
-            os.environ['APPPATH'] = settings.application
+            config = Config.get_instance()
+            os.environ['APPPATH'] = config.application
             sys.path.append(os.path.dirname(os.environ['APPPATH']))
             self.routes = Routes()
 

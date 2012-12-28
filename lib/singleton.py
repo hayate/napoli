@@ -18,3 +18,10 @@ class Singleton(object):
         if getattr(self, '__init', False):
             # do initialization here
             pass
+
+    @classmethod
+    def get_instance(cls):
+        try:
+            return cls.__instance[cls.__name__]
+        except KeyError:
+            return cls()
