@@ -22,6 +22,12 @@ process = {
 import os
 application = os.path.join(os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'app')
 
+# levels: DEBUG,INFO,WARNING,ERROR,CRITICAL
+logging = {
+    'level': 'DEBUG',
+    'log_path': os.path.join(os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'logs')
+}
+
 stdstr = {
     # possible values 'tty' or 'null'
     # 'tty' = send output to terminal
