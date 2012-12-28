@@ -80,6 +80,8 @@ if __name__ == '__main__':
                 worker.stop()
             elif 'restart' == command:
                 worker.restart()
+            elif 'status' == command:
+                worker.status()
             else:
                 print("{0} is an invalid command.".format(command))
                 usage()

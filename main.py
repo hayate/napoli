@@ -36,6 +36,9 @@ if __name__ == "__main__":
             elif 'restart' == command:
                 for p in range(port, (port + proc_num)):
                     Popen(["python {0}/worker.py -h {1} -p {2} -c {3} {4}".format(cwd, hostname, str(p), name, 'restart')], shell=True).wait()
+            elif 'status' == command:
+                for p in range(port, (port + proc_num)):
+                    Popen(["python {0}/worker.py -h {1} -p {2} -c {3} {4}".format(cwd, hostname, str(p), name, 'status')], shell=True).wait()
             else:
                 print("{0} Unknown command".format(command))
                 sys.exit(2)

@@ -70,6 +70,25 @@ class Daemon(object):
     def delpid(self):
         os.remove(self.pidfile)
 
+    def status(self):
+        """
+        Print daemon status
+        """
+        # Check for a pidfile to see if the daemon already runs
+        try:
+            with open(self.pidfile, 'r') as pf:
+                pid = int(pf.read().strip())
+        except IOError:
+            pid = None
+
+        if pid:
+            message = "pidfile: {0} with process: {1} exists. Seems the daemon is running.\n"
+            sys.stderr.write(message.format(self.pidfile, pid))
+        else:
+            message = "could not find pidfile: {0}. Seems the daemon is not running.\n"
+            sys.stderr.write(message.format(self.pidfile))
+        sys.exit(0)
+
     def start(self):
         """
         Start the daemon
