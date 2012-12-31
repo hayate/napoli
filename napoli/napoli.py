@@ -9,7 +9,6 @@ from lib.dispatcher import Dispatcher
 from lib.router import Router
 from lib.router import Routes
 from lib.config import Config
-from configs import routes
 
 
 class Napoli(Singleton):

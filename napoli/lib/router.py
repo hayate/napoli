@@ -3,7 +3,6 @@ import re
 import sys
 import inspect
 from config import Config
-from configs import routes
 
 
 class Route(object):
@@ -22,7 +21,7 @@ class Route(object):
 
 class Routes(object):
     def __init__(self):
-        self._routes = routes.routes
+        self._routes = {}
 
     def add_route(self, route, target=None):
         if isinstance(route, Route):

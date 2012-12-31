@@ -21,6 +21,8 @@ class Worker(Daemon):
         port (int): Port number of the server
         config (object): Config
         """
+        sys.path.append(os.getcwd())
+
         self.hostname = hostname
         self.port = port
         self.config = Config(name)
@@ -64,7 +66,7 @@ class Worker(Daemon):
             print("Stopped daemon with pid: {0}".format(self.pidfile))
 
 def usage():
-    print("usage: {0} -h hostname -p port -c config start|restart|stop".format(sys.argv[0]))
+    print("usage: {0} -h hostname -p port -c config start|stop|restart|status".format(sys.argv[0]))
 
 if __name__ == '__main__':
     try:
@@ -72,7 +74,7 @@ if __name__ == '__main__':
             command = sys.argv.pop()
             hostname = sys.argv[sys.argv.index('-h') + 1]
             port = int(sys.argv[sys.argv.index('-p') + 1])
-            name = Config(sys.argv[sys.argv.index('-c') + 1])
+            name = sys.argv[sys.argv.index('-c') + 1]
             worker = Worker(hostname, port, name)
             if 'start' == command:
                 worker.start()

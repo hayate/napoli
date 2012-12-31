@@ -13,7 +13,7 @@ if __name__ == "__main__":
         if len(sys.argv) > 1:
             # number of cores
             cores = cpu_count()
-            # start|stop|restart
+            # start|stop|restart|status
             command = sys.argv.pop()
             hostname = sys.argv[sys.argv.index('-h') + 1]
             port = int(sys.argv[sys.argv.index('-p') + 1])
@@ -44,9 +44,9 @@ if __name__ == "__main__":
                 sys.exit(2)
             sys.exit(0)
         else:
-            print("usage: {0} -h hostname -p port [-proc 1~cpu_count()] [-c module] start|stop|restart".format(sys.argv[0]))
+            print("usage: {0} -h hostname -p port [-proc 1~cpu_count()] [-c module] start|stop|restart|status".format(sys.argv[0]))
             sys.exit(2)
     except ValueError:
-        print("usage: {0} -h hostname -p port [-proc 1~cpu_count()] [-c module] start|stop|restart".format(sys.argv[0]))
+        print("usage: {0} -h hostname -p port [-proc 1~cpu_count()] [-c module] start|stop|restart|status".format(sys.argv[0]))
         sys.exit(2)
 
