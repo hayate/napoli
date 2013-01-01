@@ -37,7 +37,7 @@ class Log(object):
             self._log.addHandler(handler)
 
     @classmethod
-    def getInstance(self):
+    def get_instance(self):
         return self()
 
     def debug(self, msg, *args, **kwargs):

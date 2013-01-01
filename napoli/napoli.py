@@ -9,6 +9,8 @@ from lib.dispatcher import Dispatcher
 from lib.router import Router
 from lib.router import Routes
 from lib.config import Config
+from lib.plugins import Plugins
+from lib.logger import Log
 
 
 class Napoli(Singleton):
@@ -16,10 +18,23 @@ class Napoli(Singleton):
         super(Napoli, self).__init__()
         if getattr(self, '__init', False):
             # do initialization here
-            config = Config.get_instance()
-            os.environ['APPPATH'] = config.application
+            self.config = Config.get_instance()
+            os.environ['APPPATH'] = self.config.application
             sys.path.append(os.path.dirname(os.environ['APPPATH']))
+            self.log = Log()
+            self.plugins = Plugins()
+            self._load_plugins()
             self.routes = Routes()
+
+    def _load_plugins(self):
+        try:
+            for name in self.config.plugins['default']:
+                self.plugins.install(name)
+        except KeyError as ex:
+            self.log.debug(ex)
+        except Exception as ex:
+            self.log.exception(ex)
+
 
     def wsgi(self, environ, start_response):
         """

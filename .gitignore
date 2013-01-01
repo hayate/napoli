@@ -1,2 +1,4 @@
-*.wpr
 *.pyc
+*.log
+*.wpr
+*.wpu

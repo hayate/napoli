@@ -11,11 +11,11 @@ class Plugin(object):
         self.name = name
         self.active = False
 
-    def run(self):
+    def run(self, callback):
         raise NotImplementedError
 
-    def __call__(self):
-        self.run()
+    def __call__(self, callback):
+        return self.run(callback)
 
     def setup(self, *a, **kw):
         pass
@@ -45,19 +45,19 @@ class Plugins(object):
         if name in self.__plugins:
             self.__plugins[name].active = False
 
-    def install(self, name, *a, **kw):
-        if name in self.__plugins:
-            return
-        plugin = self.load(name)
-        if plugin:
-            plugin.active = True
-            self.__plugins[name] = plugin
-
     def uninstall(self, name):
         try:
             del self.__plugins[name]
         except KeyError:
             pass
+
+    def install(self, name, *a, **kw):
+        if name in self.__plugins:
+            return
+        plugin = self.load(name, *a, **kw)
+        if plugin:
+            plugin.active = True
+            self.__plugins[name] = plugin
 
     def load(self, name, *a, **kw):
         if name in self.__plugins:
@@ -65,8 +65,7 @@ class Plugins(object):
 
         name = name.lower()
         klass = ''.join([name.capitalize(), 'Plugin'])
-        app = os.path.split(os.environ['APPPATH'].rstrip(os.path.sep))[1]
-        mod = '.'.join([app, 'plugins', klass.lower()])
+        mod = '.'.join(['plugins', klass.lower()])
         module = None
         if mod not in sys.modules:
             module = __import__(mod, fromlist=[klass])
@@ -74,52 +73,44 @@ class Plugins(object):
             module = sys.modules[mod]
 
         klass = getattr(module, klass)
-        obj = klass(name)
         if issubclass(klass, Plugin):
+            obj = klass()
             obj.setup(*a, **kw)
             return obj
         raise TypeError('%s is not a sub-class of %s' % (klass, Plugin))
 
-'''
-import functools
-
-def suppress_errors(log_func=None):
-
-    """Automatically silence any errors that occur within a function"""
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-
-            try:
-                return func(*args, **kwargs)
-
-            except Exception as e:
-
-                if log_func is not None:
-                    log_func(str(e))
-
-        return wrapper
-
-return decorator
-'''
-
 
 def apply_plugin(*names):
-    """ The plugin decorator
-
-    names (list): a list of plugins name
-
+    """
+    names (list): the list of plugins to add
     """
     def decorator(callback):
         @functools.wraps(callback)
         def wrapper(*args, **kwargs):
             plugins = Plugins()
-            for name in names:
-                # will do nothing if plugin is already installed
-                plugins.install(name)
-            for plugin in plugins:
-                callback = plugin(callback)
+            _addplug = getattr(callback, '_addplug', {})
+            for name in _addplug:
+                if name not in plugins:
+                    plugin = plugins.load(name)
+                    if plugin:
+                        plugin.active = True
+                        _addplug[name] = plugin
+            setattr(callback, '_addplug', _addplug)
+            return callback(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def skip_plugin(*names):
+    """
+    names (list): a list of plugins to skip
+    """
+    def decorator(callback):
+        @functools.wraps(callback)
+        def wrapper(*args, **kwargs):
+            _skipplug = getattr(callback, '_skipplug', [])
+            _skipplug = list(set(_skipplug + names))
+            setattr(callback, '_skipplug', _skipplug)
             return callback(*args, **kwargs)
         return wrapper
     return decorator

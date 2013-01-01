@@ -26,23 +26,25 @@ class JsonPlugin(Plugin):
             # call controller method
             obj = callback(*a, **kw)
             try:
-                # create response
-                res = Response(content_type='application/json')
                 # encode into json
-                res.json = json.dumps(obj, skipkeys=self.skipkeys,
-                                      ensure_ascii=self.ensure_ascii,
-                                      check_circular=self.check_circular,
-                                      allow_nan=self.allow_nan,
-                                      cls=self.cls,
-                                      indent=self.indent,
-                                      separators=self.separators,
-                                      encoding=self.encoding)
-                # return json response
+                res = json.dumps(obj, skipkeys=self.skipkeys,
+                                 ensure_ascii=self.ensure_ascii,
+                                 check_circular=self.check_circular,
+                                 allow_nan=self.allow_nan,
+                                 cls=self.cls,
+                                 indent=self.indent,
+                                 separators=self.separators,
+                                 encoding=self.encoding)
+
+                # try to set application/json content type
+                controller = getattr(callback, 'im_self', None)
+                if controller:
+                    getattr(controller, 'response').content_type = 'application/json'
+                # return json
                 return res
             except TypeError:
                 # obj is not json serializable,
-                # we assume is webob.Response
-                # and return it
+                # just return it
                 return obj
 
         return wrapper

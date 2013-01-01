@@ -20,12 +20,13 @@ process = {
 
 # path to application directory
 import os
-application = os.path.join(os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'app')
+cwd = os.getcwd()
+application = os.path.join(cwd, 'app')
 
 # levels: DEBUG,INFO,WARNING,ERROR,CRITICAL
 logging = {
     'level': 'DEBUG',
-    'log_path': os.path.join(os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'logs')
+    'log_path': os.path.join(cwd, 'logs')
 }
 
 stdstr = {
@@ -34,6 +35,11 @@ stdstr = {
     # 'null' = discard all output
     'stdout': 'tty',
     'stderr': 'tty'
+}
+
+# plugins installed by default
+plugins = {
+    'default': ['json']
 }
 
 # default route
